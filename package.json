@@ -1,0 +1,22 @@
+{
+  "name": "github-ls",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "tap": "tap --reporter=spec --check-coverage test/*.js",
+    "quick": "tap test/*.js",
+    "test": "standard && npm run tap"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "coveralls": "^2.11.8",
+    "standard": "^6.0.8",
+    "tap": "^5.7.0"
+  },
+  "dependencies": {
+    "hyperquest": "^1.3.0"
+  }
+}
