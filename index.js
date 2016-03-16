@@ -1,1 +1,5 @@
-throw new Error('placeholderversion')
+module.exports = function (slug, branch, callback) {
+  setImmediate(function () {
+    callback(null, [])
+  })
+}
