@@ -1,10 +1,48 @@
 var hq = require('hyperquest')
 var toArray = require('stream-to-array')
 var cheerio = require('cheerio')
-function ls (slug, branch, callback) {
-  setImmediate(function () {
-    callback(null, [])
-  })
+var GITHUB = 'https://github.com'
+function ls (path, callback) {
+  var parts = /((https\:\/\/)?(github.com\/))?([^\/]+\/[^\/]+)(\/tree\/([^\/]+)\/?(.*))?\/?$/.exec(path)
+  if (!parts) {
+    throw new Error('The provided path "' + path + '" is of the wrong format. It needs to look like:\n' +
+      '((http://)github.com/){organization|user}/{repo}((/tree/{branch})/{folder}/?)\n' +
+      '\n' +
+      'Valid examples:\n' +
+      'http://github.com/martinheidegger/github-ls/tree/test/\n' +
+      'nodeschool/admin/tree/master' +
+      'nodeschool/admin     // will assume that you want tree/master/!' +
+      'github.com/martinheidegger/github-ls/tree/master/test')
+  }
+  var slug = parts[4]
+  var branch = parts[6] || 'master'
+  var folder = parts[7]
+  var prefix
+  if (folder) {
+    folder += '/'
+  } else {
+    folder = ''
+  }
+  if (branch === 'master') {
+    branch = ''
+    prefix = 'trunk/'
+  } else {
+    branch = branch + '/'
+    prefix = 'branches/' + branch
+  }
+  ls.paths(GITHUB, slug, '', ls.errorCatch(callback, function (list) {
+    var rev
+    if (branch === '') {
+      rev = list[0].rev
+    } else {
+      rev = list[1].rev
+    }
+    ls.paths(GITHUB, slug, rev + branch + folder, ls.errorCatch(callback, function (list) {
+      callback(null, list.map(function (entry) {
+        return entry.path.substr(prefix.length)
+      }))
+    }))
+  }))
 }
 ls.revision = function (base, slug, callback) {
   ls.request([base, slug, '!svn/vcc/default'].join('/'), {
@@ -13,13 +51,10 @@ ls.revision = function (base, slug, callback) {
       Depth: '0'
     },
     body: '<?xml version="1.0" encoding="utf-8"?><propfind xmlns="DAV:"><prop><checked-in xmlns="DAV:"/></prop></propfind>'
-  }, function (err, res, $, body) {
-    if (err) {
-      return callback(err, res)
-    }
+  }, ls.errorCatch(callback, function (res, $, body) {
     var nextHref = $.xml($('lp1\\:checked-in D\\:href')[0].children)
     callback(null, nextHref.substr(slug.length + 2))
-  })
+  }))
 }
 ls.paths = function (base, slug, rev, callback) {
   ls.request([base, slug, rev].join('/'), {
@@ -28,10 +63,7 @@ ls.paths = function (base, slug, rev, callback) {
       Depth: '1'
     },
     body: '<?xml version="1.0" encoding="utf-8"?><propfind xmlns="DAV:"><prop><creator-displayname xmlns="DAV:"/><creationdate xmlns="DAV:"/><version-name xmlns="DAV:"/><deadprop-count xmlns="http://subversion.tigris.org/xmlns/dav/"/><getcontentlength xmlns="DAV:"/><resourcetype xmlns="DAV:"/></prop></propfind>'
-  }, function (err, res, $, body) {
-    if (err) {
-      return callback(err, res)
-    }
+  }, ls.errorCatch(callback, function (res, $, body) {
     if (res.statusCode !== 207) {
       return callback(new Error('bad-http-status'), res)
     }
@@ -46,12 +78,19 @@ ls.paths = function (base, slug, rev, callback) {
     })
     links.shift()
     callback(null, links)
-  })
+  }))
+}
+ls.errorCatch = function (callback, handler) {
+  return function (err) {
+    if (err) {
+      return callback.apply(null, arguments)
+    }
+    var args = Array.prototype.slice.call(arguments)
+    args.shift()
+    handler.apply(null, args)
+  }
 }
 ls.request = function (url, options, callback) {
-  if (!options.headers) {
-    options.headers = {}
-  }
   options.headers['User-Agent'] = 'SVN/1.7.20 neon/0.29.6'
   options.headers['Accept-Encoding'] = 'gzip'
   options.headers['Content-Type'] = 'text/xml; charset=utf-8'
@@ -70,25 +109,16 @@ ls.request = function (url, options, callback) {
     delete options.body
   }
   var info
-  var stream = hq(url, options, function (err, _info) {
+  var stream = hq(url, options, ls.errorCatch(callback, function (_info) {
     info = _info
-    if (err) {
-      return callback(err, info)
-    }
-  })
+  }))
   if (body) {
     stream.write(body)
     stream.end()
   }
-  toArray(stream, function (err, parts) {
-    if (err) {
-      return callback(err, info)
-    }
-    var buffer = Buffer.concat(parts.map(function (part) {
-      if (part instanceof Buffer) return part
-      return new Buffer(part)
-    }))
-    callback(err, info, cheerio.load(buffer, {xmlMode: true}), buffer)
-  })
+  toArray(stream, ls.errorCatch(callback, function (parts) {
+    var buffer = Buffer.concat(parts)
+    callback(null, info, cheerio.load(buffer, {xmlMode: true}), buffer)
+  }))
 }
 module.exports = ls

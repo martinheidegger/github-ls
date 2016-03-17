@@ -3,15 +3,82 @@ var ls = require('..')
 var REPO = 'martinheidegger/github-ls'
 var GITHUB = 'https://github.com'
 var GITHUB_REPO = GITHUB + '/' + REPO
-
+var testBranchContent = [{
+  rev: '!svn/bc/6/branches/test/.gitignore',
+  path: 'branches/test/.gitignore'
+}, {
+  rev: '!svn/bc/6/branches/test/.travis.yml',
+  path: 'branches/test/.travis.yml'
+}, {
+  rev: '!svn/bc/6/branches/test/index.js',
+  path: 'branches/test/index.js'
+}, {
+  rev: '!svn/bc/6/branches/test/npm-debug.log',
+  path: 'branches/test/npm-debug.log'
+}, {
+  rev: '!svn/bc/6/branches/test/package.json',
+  path: 'branches/test/package.json'
+}, {
+  rev: '!svn/bc/6/branches/test/test/',
+  path: 'branches/test/test/'
+}]
+test('invalid path', function (t) {
+  try {
+    ls('http://engadget.com')
+  } catch (e) {
+    t.notEqual(e, null)
+    t.end()
+    return
+  }
+  t.fail('no error thrown with wrong path')
+  t.end()
+})
 test('list files of master branch', function (t) {
-  ls(REPO, 'master', function (err, list) {
+  ls(REPO + '/tree/test/', function (err, list) {
     t.equal(err, null)
-    if (!Array.isArray(list)) {
-      t.fail('List should be an array')
-    }
+    t.deepEqual(list, testBranchContent.map(function (file) {
+      return file.path.substr('branches/test/'.length)
+    }))
     t.end()
   })
+})
+test('list files of master branch with github path prefix', function (t) {
+  ls(GITHUB_REPO + '/tree/test/', function (err, list) {
+    t.equal(err, null)
+    t.deepEqual(list, testBranchContent.map(function (file) {
+      return file.path.substr('branches/test/'.length)
+    }))
+    t.end()
+  })
+})
+test('list files for a  subfolder for a particular branch', function (t) {
+  ls(REPO + '/tree/test/test', function (err, list) {
+    t.equal(err, null)
+    t.deepEqual(list, [ 'test/index.js' ])
+    t.end()
+  })
+})
+test('list files of master by default', function (t) {
+  ls(REPO, function (err, list) {
+    t.equal(err, null)
+    if (!Array.isArray(list)) {
+      t.fail('List of master is not an array')
+    }
+    if (list.length === 0) {
+      t.fail('We expected at least one entry in the list')
+    }
+    ls(REPO + '/tree/master', function (err, masterList) {
+      t.equal(err, null)
+      t.deepEqual(list, masterList)
+      t.end()
+    })
+  })
+})
+test('error catching', function (t) {
+  ls.errorCatch(function (err) {
+    t.equal(err.message, 'test')
+    t.end()
+  })(new Error('test'))
 })
 test('repo revision', function (t) {
   ls.revision(GITHUB, REPO, function (err, rev) {
@@ -43,68 +110,20 @@ test('fetching root', function (t) {
     t.end()
   })
 })
-test('fetching path for a particular branch', function (t) {
+test('fetching path for a particular branch revision', function (t) {
   ls.paths(GITHUB, REPO, '!svn/bc/6/branches/', function (err, list) {
     t.equal(err, null)
     t.deepEqual(list, [{
-        rev: '!svn/bc/6/branches/test/',
-        path: 'branches/test/'
-      }])
+      rev: '!svn/bc/6/branches/test/',
+      path: 'branches/test/'
+    }])
     t.end()
   })
 })
-
-/*
-test('handshake request', function (t) {
-  ls.request(GITHUB_REPO, {
-    method: 'OPTIONS',
-    body: '<?xml version="1.0" encoding="utf-8"?><D:options xmlns:D="DAV:"><D:activity-collection-set/></D:options>'
-  }, function (err, res, $, body) {
+test('fetching subfolder for a particular branch', function (t) {
+  ls.paths(GITHUB, REPO, '!svn/bc/6/branches/test/', function (err, list) {
     t.equal(err, null)
-    t.equal(res.statusCode, 200)
-    var nextHref = $.xml($('D\\:href')[0].children)
-    t.equal(nextHref, '/' + REPO + '/!svn/act/')
-    ls.request(GITHUB_REPO, {
-      method: 'PROPFIND',
-      headers: {
-        Depth: '0'
-      },
-      body: '<?xml version="1.0" encoding="utf-8"?><propfind xmlns="DAV:"><prop><version-controlled-configuration xmlns="DAV:"/><resourcetype xmlns="DAV:"/><baseline-relative-path xmlns="http://subversion.tigris.org/xmlns/dav/"/><repository-uuid xmlns="http://subversion.tigris.org/xmlns/dav/"/></prop></propfind>'
-    }, function (err, res, $, body) {
-      t.equal(err, null)
-      t.equal(res.statusCode, 207)
-      var nextHref = $.xml($('lp1\\:version-controlled-configuration D\\:href')[0].children)
-      t.equal(nextHref, '/' + REPO + '/!svn/vcc/default')
-      ls.request(GITHUB_REPO + '/!svn/vcc/default', {
-        method: 'PROPFIND',
-        headers: {
-          Depth: '0'
-        },
-        body: '<?xml version="1.0" encoding="utf-8"?><propfind xmlns="DAV:"><prop><checked-in xmlns="DAV:"/></prop></propfind>'
-      }, function (err, res, $, body) {
-        t.equal(err, null)
-        t.equal(res.statusCode, 207)
-        var nextHref = $.xml($('lp1\\:checked-in D\\:href')[0].children)
-        ls.request(GITHUB + nextHref, {
-          method: 'PROPFIND',
-          headers: {
-            Depth: '1'
-          },
-          body: '<?xml version="1.0" encoding="utf-8"?><propfind xmlns="DAV:"><prop><creator-displayname xmlns="DAV:"/><creationdate xmlns="DAV:"/><version-name xmlns="DAV:"/><deadprop-count xmlns="http://subversion.tigris.org/xmlns/dav/"/><getcontentlength xmlns="DAV:"/><resourcetype xmlns="DAV:"/></prop></propfind>'
-        }, function (err, res, $, body) {
-          t.equal(err, null)
-          t.equal(res.statusCode, 207)
-          var links = $('D\\:href').toArray().map(function (node) {
-            return $.xml(node.children)
-          })
-          links = links.map(function (link) {
-            return link.substr(links[0].length)
-          })
-          t.deepEqual(links, ['', 'trunk/', 'branches/'])
-          t.end()
-        })
-      })
-    })
+    t.deepEqual(list, testBranchContent)
+    t.end()
   })
 })
-*/
