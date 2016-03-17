@@ -23,15 +23,10 @@ var testBranchContent = [{
   path: 'branches/test/test/'
 }]
 test('invalid path', function (t) {
-  try {
-    ls('http://engadget.com')
-  } catch (e) {
+  ls('http://engadget.com', function (e) {
     t.notEqual(e, null)
     t.end()
-    return
-  }
-  t.fail('no error thrown with wrong path')
-  t.end()
+  })
 })
 test('list files of master branch', function (t) {
   ls(REPO + '/tree/test/', function (err, list) {

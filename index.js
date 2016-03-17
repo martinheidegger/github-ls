@@ -5,14 +5,14 @@ var GITHUB = 'https://github.com'
 function ls (path, callback) {
   var parts = /((https\:\/\/)?(github.com\/))?([^\/]+\/[^\/]+)(\/tree\/([^\/]+)\/?(.*))?\/?$/.exec(path)
   if (!parts) {
-    throw new Error('The provided path "' + path + '" is of the wrong format. It needs to look like:\n' +
+    return setImmediate(callback.bind(null, new Error('The provided path "' + path + '" is of the wrong format. It needs to look like:\n' +
       '((http://)github.com/){organization|user}/{repo}((/tree/{branch})/{folder}/?)\n' +
       '\n' +
       'Valid examples:\n' +
       'http://github.com/martinheidegger/github-ls/tree/test/\n' +
-      'nodeschool/admin/tree/master' +
-      'nodeschool/admin     // will assume that you want tree/master/!' +
-      'github.com/martinheidegger/github-ls/tree/master/test')
+      'nodeschool/admin/tree/master\n' +
+      'nodeschool/admin     // will assume that you want tree/master/\n' +
+      'github.com/martinheidegger/github-ls/tree/master/test')))
   }
   var slug = parts[4]
   var branch = parts[6] || 'master'
