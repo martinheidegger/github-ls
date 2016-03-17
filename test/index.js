@@ -13,6 +13,48 @@ test('list files of master branch', function (t) {
     t.end()
   })
 })
+test('repo revision', function (t) {
+  ls.revision(GITHUB, REPO, function (err, rev) {
+    t.equal(err, null)
+    var parts = /^\!svn\/bln\/([0-9]+)$/.exec(rev)
+    if (!parts) {
+      t.fail('Version format is unexpected: ' + rev)
+    }
+    if (parseInt(parts[1]) < 5) {
+      t.fail('Version is expected to be bigger than 5')
+    }
+    t.end()
+  })
+})
+test('fetching root', function (t) {
+  ls.paths(GITHUB, REPO, '', function (err, list) {
+    t.equal(err, null)
+    t.equal(list.length, 2)
+    t.equal(list[0].path, 'trunk/')
+    t.equal(list[1].path, 'branches/')
+    var reg = /^\!svn\/bc\/([0-9]+)\/(trunk|branches)\/$/
+    if (!reg.test(list[0].rev)) {
+      t.fail('Version format is unexpected: ' + list[0].rev)
+    }
+    reg.lastIndex = 0
+    if (!reg.test(list[1].rev)) {
+      t.fail('Version format is unexpected: ' + list[1].rev)
+    }
+    t.end()
+  })
+})
+test('fetching path for a particular branch', function (t) {
+  ls.paths(GITHUB, REPO, '!svn/bc/6/branches/', function (err, list) {
+    t.equal(err, null)
+    t.deepEqual(list, [{
+        rev: '!svn/bc/6/branches/test/',
+        path: 'branches/test/'
+      }])
+    t.end()
+  })
+})
+
+/*
 test('handshake request', function (t) {
   ls.request(GITHUB_REPO, {
     method: 'OPTIONS',
@@ -65,3 +107,4 @@ test('handshake request', function (t) {
     })
   })
 })
+*/
