@@ -23,5 +23,16 @@
     "cheerio": "^0.20.0",
     "hyperquest": "^1.3.0",
     "stream-to-array": "^2.3.0"
-  }
+  },
+  "directories": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/martinheidegger/github-ls.git"
+  },
+  "bugs": {
+    "url": "https://github.com/martinheidegger/github-ls/issues"
+  },
+  "homepage": "https://github.com/martinheidegger/github-ls#readme"
 }
