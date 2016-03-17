@@ -4,7 +4,7 @@
 [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com/)
 
 # github-ls
-`github-ls` offers an JavaScript-only way to list the files in a github respository.
+`github-ls` offers an JavaScript-only way to list the files in a github repository.
 
  - It needs **no Github Token**, because it doesn't use [the API](https://developer.github.com/v3/git/trees/) which has a rate limit.
  - It does **not fetch the data**, because it doesn't use git fetching
@@ -19,7 +19,7 @@ $ npm i github-ls -g
 $ github-ls martinheidegger/github-ls
 ```
 
-## JavaScipt Usage
+## JavaScript Usage
 The `github-ls` command can also be used as a package (`npm i github-ls --save`):
 
 ```JavaScript
