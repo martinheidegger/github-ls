@@ -63,6 +63,6 @@ Right now it _should basically work_ but the error messages might be wildly unhe
 ## Thanks
 I would like to thank [s9tpepper](https://github.com/s9tpepper) for helping me find a good way and motivating me. I also would like to say that I wouldn't have had the idea without the push from [fforres](https://github.com/fforres), [bnb](https://github.com/bnb) and [dinodsaurus](https://github.com/dinodsaurus) that work with me on [nodeschool-admin](https://github.com/nodeschool/admin) and [iancrowther](https://github.com/iancrowther) who motivates me to work on nodeschool in general.
 
-`github-ls` builds on the great work of [https://github.com/substack/hyperquest], [https://github.com/cheeriojs/cheerio] and [https://github.com/stream-utils/stream-to-array] without which this would have been way more work! You guys rock!
+`github-ls` builds on the great work of [hyperquest](https://github.com/substack/hyperquest), [cheerio](https://github.com/cheeriojs/cheerio) and [stream-to-array](https://github.com/stream-utils/stream-to-array) without those libraries it would have been way more work! You guys rock!
 
 
