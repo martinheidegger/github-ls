@@ -19,6 +19,8 @@ $ npm i github-ls -g
 $ github-ls martinheidegger/github-ls
 ```
 
+[![https://gyazo.com/4f349176003e3736732b82da862b64d3](https://i.gyazo.com/4f349176003e3736732b82da862b64d3.gif)](https://gyazo.com/4f349176003e3736732b82da862b64d3)
+
 ## JavaScript Usage
 The `github-ls` command can also be used as a package (`npm i github-ls --save`):
 
@@ -52,6 +54,8 @@ In case you simply want to copy the url from github, you can also just pass in t
 ```bash
 $ github-ls https://github.com/martinheidegger/github-ls/tree/master/test
 ```
+
+[![https://gyazo.com/8d6374fe72ba030c86cdf12516cb0103](https://i.gyazo.com/8d6374fe72ba030c86cdf12516cb0103.gif)](https://gyazo.com/8d6374fe72ba030c86cdf12516cb0103)
 
 ## State
 Right now it _should basically work_ but the error messages might be wildly unhelpful. If you find any problem, please don't hesitate to [post an issue](https://github.com/martinheidegger/github-ls/issues/new) or [create a Pull Request](https://help.github.com/articles/creating-a-pull-request/).
