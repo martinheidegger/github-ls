@@ -25,10 +25,10 @@ function ls (path, callback) {
   }
   if (branch === 'master') {
     branch = ''
-    prefix = 'trunk/'
+    prefix = 'trunk/' + folder
   } else {
     branch = branch + '/'
-    prefix = 'branches/' + branch
+    prefix = 'branches/' + branch + folder
   }
   ls.paths(GITHUB, slug, '', ls.errorCatch(callback, function (list) {
     var rev

@@ -49,7 +49,7 @@ test('list files of master branch with github path prefix', function (t) {
 test('list files for a  subfolder for a particular branch', function (t) {
   ls(REPO + '/tree/test/test', function (err, list) {
     t.equal(err, null)
-    t.deepEqual(list, [ 'test/index.js' ])
+    t.deepEqual(list, [ 'index.js' ])
     t.end()
   })
 })
