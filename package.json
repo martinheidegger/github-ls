@@ -1,14 +1,18 @@
 {
   "name": "github-ls",
   "version": "0.0.1",
-  "description": "",
+  "description": "List files in a github folder without api, fetching or html parsing!",
   "main": "index.js",
   "scripts": {
     "tap": "tap --reporter=spec --check-coverage test/*.js",
     "quick": "tap test/*.js",
     "test": "standard && npm run tap"
   },
-  "keywords": [],
+  "keywords": [
+    "cli",
+    "github",
+    "ls"
+  ],
   "bin": {
     "github-ls": "bin/github-ls"
   },
