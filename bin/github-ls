@@ -1,0 +1,12 @@
+#!/usr/bin/env node
+
+var ls = require('..')
+ls(process.argv[2], function (err, list) {
+	if (err) {
+		console.log(err.message)
+		process.exit(1)
+	}
+	list.forEach(function (entry) {
+		console.log(entry)
+	})
+})

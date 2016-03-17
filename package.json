@@ -9,6 +9,9 @@
     "test": "standard && npm run tap"
   },
   "keywords": [],
+  "bin": {
+    "github-ls": "bin/github-ls"
+  },
   "author": "",
   "license": "ISC",
   "devDependencies": {
