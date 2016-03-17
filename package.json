@@ -1,6 +1,6 @@
 {
   "name": "github-ls",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "List files in a github folder without api, fetching or html parsing!",
   "main": "index.js",
   "scripts": {
