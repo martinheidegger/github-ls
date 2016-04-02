@@ -17,7 +17,6 @@ function ls (path, callback) {
   var slug = parts[4]
   var branch = parts[6] || 'master'
   var folder = parts[7]
-  var rev
   var prefix
   if (folder) {
     folder += '/'
@@ -30,7 +29,6 @@ function ls (path, callback) {
     }))
   })
   ls.paths(GITHUB, slug, 'branches', ls.errorCatch(callback, function (list) {
-
     for (var i = 0; i < list.length; i++) {
       var item = list[i]
       prefix = 'branches/' + branch + '/'
