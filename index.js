@@ -31,7 +31,7 @@ function ls (path, callback) {
   ls.paths(GITHUB, slug, 'branches', ls.errorCatch(callback, function (list) {
     for (var i = 0; i < list.length; i++) {
       var item = list[i]
-      prefix = 'branches/' + branch + '/'
+      prefix = 'branches/' + branch + '/' + folder
       if (item.path === prefix) {
         /*
          This branch is actually a branch! lets use it!
@@ -45,7 +45,7 @@ function ls (path, callback) {
       read
      */
     ls.paths(GITHUB, slug, '', ls.errorCatch(callback, function (list) {
-      prefix = 'trunk/'
+      prefix = 'trunk/' + folder
       ls.paths(GITHUB, slug, list[0].rev + folder, folderProcessor)
     }))
   }))
