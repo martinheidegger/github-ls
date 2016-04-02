@@ -17,30 +17,38 @@ function ls (path, callback) {
   var slug = parts[4]
   var branch = parts[6] || 'master'
   var folder = parts[7]
+  var rev
   var prefix
   if (folder) {
     folder += '/'
   } else {
     folder = ''
   }
-  if (branch === 'master') {
-    branch = ''
-    prefix = 'trunk/' + folder
-  } else {
-    branch = branch + '/'
-    prefix = 'branches/' + branch + folder
-  }
-  ls.paths(GITHUB, slug, '', ls.errorCatch(callback, function (list) {
-    var rev
-    if (branch === '') {
-      rev = list[0].rev
-    } else {
-      rev = list[1].rev
+  var folderProcessor = ls.errorCatch(callback, function (list) {
+    callback(null, list.map(function (entry) {
+      return entry.path.substr(prefix.length)
+    }))
+  })
+  ls.paths(GITHUB, slug, 'branches', ls.errorCatch(callback, function (list) {
+
+    for (var i = 0; i < list.length; i++) {
+      var item = list[i]
+      prefix = 'branches/' + branch + '/'
+      if (item.path === prefix) {
+        /*
+         This branch is actually a branch! lets use it!
+         */
+        return ls.paths(GITHUB, slug, item.rev + folder, folderProcessor)
+      }
     }
-    ls.paths(GITHUB, slug, rev + branch + folder, ls.errorCatch(callback, function (list) {
-      callback(null, list.map(function (entry) {
-        return entry.path.substr(prefix.length)
-      }))
+    /*
+      If the selected branch is not a dedicated branch it assumes that the branch is the trunk
+      and we need to fetch the version of the trunk to know which version of the tree we should
+      read
+     */
+    ls.paths(GITHUB, slug, '', ls.errorCatch(callback, function (list) {
+      prefix = 'trunk/'
+      ls.paths(GITHUB, slug, list[0].rev + folder, folderProcessor)
     }))
   }))
 }
