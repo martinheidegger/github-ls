@@ -46,6 +46,9 @@ function ls (path, callback) {
      */
     ls.paths(GITHUB, slug, '', ls.errorCatch(callback, function (list) {
       prefix = 'trunk/' + folder
+      if (list.length === 0) {
+        return callback(new Error('empty-repo'))
+      }
       ls.paths(GITHUB, slug, list[0].rev + folder, folderProcessor)
     }))
   }))
