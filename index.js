@@ -32,7 +32,7 @@ function ls (path, callback) {
     for (var i = 0; i < list.length; i++) {
       var item = list[i]
       prefix = 'branches/' + branch + '/' + folder
-      if (item.path === prefix) {
+      if (item.path === 'branches/' + branch + '/') {
         /*
          This branch is actually a branch! lets use it!
          */
