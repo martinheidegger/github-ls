@@ -3,6 +3,49 @@ var toArray = require('stream-to-array')
 var cheerio = require('cheerio')
 var Path = require('path')
 var GITHUB = 'https://github.com'
+function processThroughGithub (github, slug, folder, branch, callback) {
+  var userRepo = slug.split('/')
+  return github.repos.getBranch({
+    user: userRepo[0],
+    repo: userRepo[1],
+    branch: branch
+  }, function (err, branch) {
+    if (err) return callback(err)
+    var pathParts = folder.split('/')
+    if (pathParts[0] === '') {
+      pathParts.shift()
+    }
+    if (pathParts[pathParts.length - 1] === '') {
+      pathParts.pop()
+    }
+    var loadTree = function (sha) {
+      github.gitdata.getTree({
+        user: userRepo[0],
+        repo: userRepo[1],
+        sha: sha,
+        recursive: false
+      }, function (err, result) {
+        if (err) return callback(err)
+        if (pathParts.length > 0) {
+          var currentFolder = pathParts.shift()
+          for (var i = 0; i < result.tree.length; i++) {
+            var entry = result.tree[i]
+            if (entry.path === currentFolder) {
+              return loadTree(entry.sha)
+            }
+          }
+          return callback(new Error('folder-not-found'))
+        }
+        callback(null, result.tree.filter(function (treeEntry) {
+          return treeEntry.type !== 'tree'
+        }).map(function (treeEntry) {
+          return Path.basename(treeEntry.path + '#' + treeEntry.sha)
+        }))
+      })
+    }
+    loadTree(branch.commit.sha)
+  })
+}
 function ls (path, github, callback) {
   if (typeof github === 'function') {
     callback = github
@@ -29,47 +72,7 @@ function ls (path, github, callback) {
     folder = ''
   }
   if (github) {
-    var userRepo = slug.split('/')
-    return github.repos.getBranch({
-      user: userRepo[0],
-      repo: userRepo[1],
-      branch: branch
-    }, function (err, branch) {
-      if (err) return callback(err)
-      var pathParts = folder.split('/')
-      if (pathParts[0] === '') {
-        pathParts.shift()
-      }
-      if (pathParts[pathParts.length - 1] === '') {
-        pathParts.pop()
-      }
-      var loadTree = function (sha) {
-        github.gitdata.getTree({
-          user: userRepo[0],
-          repo: userRepo[1],
-          sha: sha,
-          recursive: false
-        }, function (err, result) {
-          if (err) return callback(err)
-          if (pathParts.length > 0) {
-            var currentFolder = pathParts.shift()
-            for (var i = 0; i < result.tree.length; i++) {
-              var entry = result.tree[i]
-              if (entry.path === currentFolder) {
-                return loadTree(entry.sha)
-              }
-            }
-            return callback(new Error('folder-not-found'))
-          }
-          callback(null, result.tree.filter(function (treeEntry) {
-            return treeEntry.type !== 'tree'
-          }).map(function (treeEntry) {
-            return Path.basename(treeEntry.path + '#' + treeEntry.sha)
-          }))
-        })
-      }
-      loadTree(branch.commit.sha)
-    })
+    return processThroughGithub(github, slug, folder, branch, callback)
   }
   var folderProcessor = ls.errorCatch(callback, function (list) {
     callback(null, list.map(function (entry) {
