@@ -29,10 +29,10 @@ function ls (path, github, callback) {
     folder = ''
   }
   if (github) {
-    var parts = slug.split('/')
+    var userRepo = slug.split('/')
     return github.repos.getBranch({
-      user: parts[0],
-      repo: parts[1],
+      user: userRepo[0],
+      repo: userRepo[1],
       branch: branch
     }, function (err, branch) {
       if (err) return callback(err)
@@ -45,8 +45,8 @@ function ls (path, github, callback) {
       }
       var loadTree = function (sha) {
         github.gitdata.getTree({
-          user: parts[0],
-          repo: parts[1],
+          user: userRepo[0],
+          repo: userRepo[1],
           sha: sha,
           recursive: false
         }, function (err, result) {
