@@ -1,12 +1,25 @@
 #!/usr/bin/env node
 
 var ls = require('..')
-ls(process.argv[2], function (err, list) {
-	if (err) {
-		console.log(err.message)
-		process.exit(1)
-	}
-	list.forEach(function (entry) {
-		console.log(entry)
-	})
+var github
+if (process.env.GITHUB_TOKEN) {
+  github = new (require('github4'))({
+    version: '3.0.0',
+    headers: {
+      'user-agent': 'github-ls'
+    }
+  })
+  github.authenticate({
+    type: 'oauth',
+    token: process.env.GITHUB_TOKEN
+  })
+}
+ls(process.argv[2], github, function (err, list) {
+  if (err) {
+    console.log(err.message)
+    process.exit(1)
+  }
+  list.forEach(function (entry) {
+    console.log(entry)
+  })
 })
