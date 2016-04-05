@@ -9,10 +9,17 @@ var github = new Github({
     'user-agent': 'github-ls-test'
   }
 })
-github.authenticate({
-  type: 'oauth',
-  token: require('../test_auth').token
-})
+try {
+  github.authenticate({
+    type: 'oauth',
+    token: require('../test_auth').token
+  })
+} catch (e) {
+  github.authenticate({
+    type: 'oauth',
+    token: process.env.GITHUB_TOKEN
+  })
+}
 
 test('fetching with a null github client should work', function (t) {
   ls(REPO + '/tree/test/test', null, function (err, list) {
