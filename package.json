@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "cheerio": "^0.20.0",
+    "github4": "git+https://github.com/martinheidegger/node-github.git#da78c2b37ec9a74d5e0135c058655061f497871c",
     "hyperquest": "^1.3.0",
     "stream-to-array": "^2.3.0"
   },

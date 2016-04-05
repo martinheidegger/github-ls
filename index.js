@@ -1,6 +1,7 @@
 var hq = require('hyperquest')
 var toArray = require('stream-to-array')
 var cheerio = require('cheerio')
+var Path = require('path')
 var GITHUB = 'https://github.com'
 function ls (path, github, callback) {
   if (typeof github === 'function') {
@@ -26,6 +27,50 @@ function ls (path, github, callback) {
     folder += '/'
   } else {
     folder = ''
+  }
+  if (github) {
+    var parts = slug.split('/')
+    return github.repos.getBranch({
+      user: parts[0],
+      repo: parts[1],
+      branch: branch
+    }, function (err, branch) {
+      if (err) return callback(err)
+      var pathParts = folder.split('/')
+      if (pathParts[0] === '') {
+        pathParts.shift()
+      }
+      if (pathParts[pathParts.length - 1] === '') {
+        pathParts.pop()
+      }
+      var loadTree = function (sha) {
+        github.gitdata.getTree({
+          user: parts[0],
+          repo: parts[1],
+          sha: sha,
+          recursive: false
+        }, function (err, result) {
+          if (err) return callback(err)
+          if (pathParts.length > 0) {
+            var currentFolder = pathParts.shift()
+            for (var i = 0; i < result.tree.length; i++) {
+              var entry = result.tree[i]
+              if (entry.path === currentFolder) {
+                return loadTree(entry.sha)
+              }
+            }
+            console.log('folder > ' + currentFolder)
+            return callback(new Error('folder-not-found'))
+          }
+          callback(null, result.tree.filter(function (treeEntry) {
+            return treeEntry.type !== 'tree'
+          }).map(function (treeEntry) {
+            return Path.basename(treeEntry.path)
+          }))
+        })
+      }
+      loadTree(branch.commit.sha)
+    })
   }
   var folderProcessor = ls.errorCatch(callback, function (list) {
     callback(null, list.map(function (entry) {
