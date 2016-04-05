@@ -2,7 +2,11 @@ var hq = require('hyperquest')
 var toArray = require('stream-to-array')
 var cheerio = require('cheerio')
 var GITHUB = 'https://github.com'
-function ls (path, callback) {
+function ls (path, github, callback) {
+  if (typeof github === 'function') {
+    callback = github
+    github = null
+  }
   var parts = /((https\:\/\/)?(github.com\/))?([^\/]+\/[^\/]+)(\/tree\/([^\/]+)\/?(.*))?\/?$/.exec(path)
   if (!parts) {
     return setImmediate(callback.bind(null, new Error('The provided path "' + path + '" is of the wrong format. It needs to look like:\n' +
