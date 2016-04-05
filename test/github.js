@@ -6,7 +6,7 @@ var Github = require('github4')
 var github = new Github({
   version: '3.0.0',
   headers: {
-    'user-agent': 'open-github-teams'
+    'user-agent': 'github-ls-test'
   }
 })
 github.authenticate({
