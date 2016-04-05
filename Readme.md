@@ -1,4 +1,4 @@
-[![ISC License](https://img.shields.io/badge/license-ISC-red.svg?style=flat)](https://tldrlegal.com/license/-isc-license)
+[![ISC License](https://img.shields.io/badge/license-ISC-brightgreen.svg?style=flat)](https://tldrlegal.com/license/-isc-license)
 [![Build Status](https://travis-ci.org/martinheidegger/github-ls.svg?branch=master)](https://travis-ci.org/martinheidegger/github-ls)
 [![Coverage Status](https://coveralls.io/repos/github/martinheidegger/github-ls/badge.svg?branch=master)](https://coveralls.io/github/martinheidegger/github-ls?branch=master)
 [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com/)
