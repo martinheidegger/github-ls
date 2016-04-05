@@ -6,6 +6,7 @@
   "scripts": {
     "tap": "tap --reporter=spec --check-coverage test/*.js",
     "quick": "tap test/*.js",
+    "lint": "standard",
     "test": "standard && npm run tap"
   },
   "keywords": [
