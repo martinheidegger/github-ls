@@ -59,13 +59,12 @@ function ls (path, github, callback) {
                 return loadTree(entry.sha)
               }
             }
-            console.log('folder > ' + currentFolder)
             return callback(new Error('folder-not-found'))
           }
           callback(null, result.tree.filter(function (treeEntry) {
             return treeEntry.type !== 'tree'
           }).map(function (treeEntry) {
-            return Path.basename(treeEntry.path)
+            return Path.basename(treeEntry.path + '#' + treeEntry.sha)
           }))
         })
       }
