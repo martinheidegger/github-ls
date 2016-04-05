@@ -63,11 +63,54 @@ $ github-ls https://github.com/martinheidegger/github-ls/tree/master/test
 
 [![https://gyazo.com/8d6374fe72ba030c86cdf12516cb0103](https://i.gyazo.com/8d6374fe72ba030c86cdf12516cb0103.gif)](https://gyazo.com/8d6374fe72ba030c86cdf12516cb0103)
 
+## Github API support
+The listing of files through svn is in my experience - suprisingly - faster than through the github api (still both are way very slow). However: the 
+github file listings of `github-ls` tend to have a latency issue. It takes
+a little bit of time until the github changes are reflected in the svn variant.
+More importantly, the access to the files using
+`https://raw.githubusercontent.com` is cached for several minutes! In order to
+get accurate and up-to-date files `github-ls` also supports the use of the
+github api to lookup files.
+
+### Github API in the Command Line
+All you have to do in the command line is to specify the environment variable `GITHUB_TOKEN`:
+
+```bash
+$ env GITHUB_TOKEN="6522-this-is-not-a-token-52bf8226de22868" github-ls martinheidegger/github-ls
+```
+
+### Github API with JavaScript
+Instantiate a [github4]() client and pass it in as second parameter to github-ls. Note: This requires a version of github4 that includes [PR#97](https://github.com/kaizensoze/node-github/pull/97).
+
+```JavaScript
+var Client = require('github4')
+var client = new Client({
+    version: '3.0.0',
+    headers: {
+        'user-agent': 'my-app-user-agent' 
+    }
+})
+github-ls('martinheidegger/github-ls', client, function (err, list) {
+    // process the list
+})
+```
+
+
 ## State
 Right now it _should basically work_ but the error messages might be wildly
 unhelpful. If you find any problem, please don't hesitate to
 [post an issue](https://github.com/martinheidegger/github-ls/issues/new) or
 [create a Pull Request](https://help.github.com/articles/creating-a-pull-request/).
+
+## Tests
+To run the tests you need to have a `test_auth.json` file in your project 
+folder that contains a valid github token. Example:
+
+```JSON
+{
+    "token": "6522-this-is-not-a-token-52bf8226de22868"
+}
+```
 
 ## Thanks
 I would like to thank [s9tpepper](https://github.com/s9tpepper) for helping me
